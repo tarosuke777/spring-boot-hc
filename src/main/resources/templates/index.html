@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>HomeChat</title>
+	<link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+
+	<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+	<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+
+	<script src="/app.js"></script>
+</head>
+<body>
+<div class="container">
+	<input type="hidden" th:value="${channelId}" id="jsiChannelId"/>
+    <div class="row">
+        <div class="col">
+            <table id="jsiConversation" class="table table-striped" style="display: none;">
+                <thead>
+                <tr>
+                    <th>Time</th>
+					<th>Message</th>
+                </tr>
+                </thead>
+                <tbody id="messages">
+					<tr th:each="message: ${messages}">
+						<td th:text="${message.createdAt}"></td>
+						<td th:text="${message.content}"></td>
+					</tr>					
+                </tbody>
+            </table>
+        </div>
+    </div>
+	<hr>
+	<div class="row mb-3">
+	    <div class="col">
+	        <input type="text" id="jsiContent" class="form-control">
+	    </div>
+		<div class="col">
+			<button id="jsiSend" class="btn btn-dark">Send</button>
+		</div>
+	</div>
+</div>
+</body>
+</html>

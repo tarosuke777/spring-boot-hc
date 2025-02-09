@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: hc
+  cloud:
+    aws:
+      dynamodb:
+        enabled: true
+        region: eu-west-1
+        endpoint: http://localhost:8000
+      credentials:
+        secret-key: DUMMYEXAMPLEKEY
+        access-key: DUMMYIDEXAMPLE
