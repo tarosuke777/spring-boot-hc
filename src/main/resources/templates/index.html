@@ -8,7 +8,12 @@
 	<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
 
-	<script src="/app.js"></script>
+	<script th:src="@{/webjars/react/umd/react.development.js}"></script>
+	<script th:src="@{/webjars/react-dom/umd/react-dom.development.js}"></script>
+
+	<script th:src="@{/webjars/babel-standalone/babel.min.js}"></script>
+	
+	<script type="text/babel" src="app.jsx"></script>
 </head>
 <body>
 <div class="container">
@@ -32,14 +37,7 @@
         </div>
     </div>
 	<hr>
-	<div class="row mb-3">
-	    <div class="col">
-	        <input type="text" id="jsiContent" class="form-control">
-	    </div>
-		<div class="col">
-			<button id="jsiSend" class="btn btn-dark">Send</button>
-		</div>
-	</div>
+	<div id="app"></div>
 </div>
 </body>
 </html>
