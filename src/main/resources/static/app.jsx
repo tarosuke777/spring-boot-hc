@@ -8,24 +8,37 @@ const App = () => {
 	
 	React.useEffect(() => {
 		
-		const channelId = $("#channelId").val(); 
-		$.ajax({
-		    url: '/messages', 
-		    type: 'GET',
-		    data: { channelId: channelId }, 
-		    dataType: 'json', 
-		    success: function(data) {
-		        $("#messages").empty();
-		        $.each(data, function(index, message) {
-		            showMessage(message);
-		        });
-		    },
-		    error: function(error) {
-		        console.error("Error fetching messages:", error);
-		        alert("メッセージの取得に失敗しました。");
-		    }
+		const messagesTable = document.getElementById('jsiConversation').getElementsByTagName('tbody')[0];
+		const channelId = document.getElementById('jsiChannelId').value;
+;
+		fetch(`/messages?channelId=${channelId}`, {
+		  method: 'GET',
+		  headers: {
+		    'Accept': 'application/json'
+		  }
+		})
+		.then(response => {
+		  if (!response.ok) {
+		    throw new Error(`HTTP error! status: ${response.status}`);
+		  }
+		  return response.json();
+		})
+		.then(data => {
+		  messagesTable.innerHTML = '';
+
+		  data.forEach(message => {
+		    const row = messagesTable.insertRow();
+		    const createdAtCell = row.insertCell();
+		    const contentCell = row.insertCell();
+
+		    createdAtCell.textContent = message.createdAt;
+		    contentCell.textContent = message.content;
+		  });
+		})
+		.catch(error => {
+		  console.error('Error fetching messages:', error);
+		  alert('メッセージの取得に失敗しました。');
 		});
-		
 		
 		const websocket = new WebSocket('ws://localhost:8080/hc-websocket?1');
 		socketRef.current = websocket;
