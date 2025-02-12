@@ -7,6 +7,26 @@ const App = () => {
 	const contentRef = React.useRef(null);
 	
 	React.useEffect(() => {
+		
+		const channelId = $("#channelId").val(); 
+		$.ajax({
+		    url: '/messages', 
+		    type: 'GET',
+		    data: { channelId: channelId }, 
+		    dataType: 'json', 
+		    success: function(data) {
+		        $("#messages").empty();
+		        $.each(data, function(index, message) {
+		            showMessage(message);
+		        });
+		    },
+		    error: function(error) {
+		        console.error("Error fetching messages:", error);
+		        alert("メッセージの取得に失敗しました。");
+		    }
+		});
+		
+		
 		const websocket = new WebSocket('ws://localhost:8080/hc-websocket?1');
 		socketRef.current = websocket;
 
