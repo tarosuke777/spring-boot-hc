@@ -1,5 +1,7 @@
 package com.tarosuke777.hc.controller;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -24,9 +26,19 @@ public class MessageController {
 	DynamoDbTemplate dynamoDbTemplate;
 
 	@GetMapping("/messages")
-	public List<Message> index(@RequestParam(name = "channelId", defaultValue = "1") String channelId) {
+	public List<Message> index(@RequestParam(name = "channelId", defaultValue = "1") String channelId,
+			@RequestParam(name = "toDateStr", required = false) String toDateStr) {
 
-		QueryConditional keyEqual = QueryConditional.keyEqualTo(b -> b.partitionValue(channelId));
+		LocalDate toDate = LocalDate.now();
+		if (toDateStr != null) {
+			DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+			toDate = LocalDate.parse(toDateStr, inputFormatter);
+		}
+
+		String fromDate = toDate.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+		QueryConditional keyEqual = QueryConditional
+				.sortGreaterThan(b -> b.partitionValue(channelId).sortValue(fromDate));
 		QueryEnhancedRequest tableQuery = QueryEnhancedRequest.builder().queryConditional(keyEqual).build();
 		PageIterable<Message> pages = dynamoDbTemplate.query(tableQuery, Message.class);
 		// PageIterableが空の場合の対応を追加
