@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +26,7 @@ public class MessageController {
 	@Autowired
 	DynamoDbTemplate dynamoDbTemplate;
 
+	@CrossOrigin
 	@GetMapping("/messages")
 	public List<Message> index(@RequestParam(name = "channelId", defaultValue = "1") String channelId,
 			@RequestParam(name = "toDateStr", required = false) String toDateStr) {
