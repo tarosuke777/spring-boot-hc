@@ -10,3 +10,6 @@ spring:
       credentials:
         secret-key: DUMMYEXAMPLEKEY
         access-key: DUMMYIDEXAMPLE
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html 

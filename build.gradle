@@ -22,6 +22,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation "io.awspring.cloud:spring-cloud-aws-starter:${springCloudAwsVersion}"
     implementation "io.awspring.cloud:spring-cloud-aws-starter-dynamodb:${springCloudAwsVersion}"
+    
+ 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'   
  
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     compileOnly 'org.projectlombok:lombok'
