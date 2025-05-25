@@ -1,33 +1,33 @@
 package com.tarosuke777.hc.handler;
 
 import java.io.IOException;
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tarosuke777.hc.entity.Message;
-
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 
 public class Handler extends TextWebSocketHandler {
 
-	private ConcurrentHashMap<String, Set<WebSocketSession>> channelSessionPool = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, Set<WebSocketSession>> channelSessionPool =
+			new ConcurrentHashMap<>();
 
 	@Autowired
 	DynamoDbTemplate dynamoDbTemplate;
 
 	@Override
-	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+	public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
 
-		String channelId = session.getUri().getQuery();
+		String channelId = getChannelId(session);
 
 		channelSessionPool.compute(channelId, (key, sessions) -> {
 
@@ -41,7 +41,8 @@ public class Handler extends TextWebSocketHandler {
 	}
 
 	@Override
-	protected void handleTextMessage(WebSocketSession session, TextMessage textMessage) {
+	protected void handleTextMessage(@NonNull WebSocketSession session,
+			@NonNull TextMessage textMessage) {
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {
@@ -54,7 +55,8 @@ public class Handler extends TextWebSocketHandler {
 
 			TextMessage sendTextMessage = new TextMessage(mapper.writeValueAsString(message));
 
-			for (WebSocketSession webSocketSession : channelSessionPool.get(message.getChannelId())) {
+			for (WebSocketSession webSocketSession : channelSessionPool
+					.get(message.getChannelId())) {
 				webSocketSession.sendMessage(sendTextMessage);
 			}
 
@@ -65,9 +67,10 @@ public class Handler extends TextWebSocketHandler {
 	}
 
 	@Override
-	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+	public void afterConnectionClosed(@NonNull WebSocketSession session,
+			@NonNull CloseStatus status) throws Exception {
 
-		String channelId = session.getUri().getQuery();
+		String channelId = getChannelId(session);
 
 		channelSessionPool.compute(channelId, (key, sessions) -> {
 
@@ -79,4 +82,13 @@ public class Handler extends TextWebSocketHandler {
 			return sessions;
 		});
 	}
+
+	private String getChannelId(@NonNull WebSocketSession session) {
+		URI uri = session.getUri();
+		if (uri == null || uri.getQuery() == null) {
+			return null;
+		}
+		return uri.getQuery();
+	}
+
 }
