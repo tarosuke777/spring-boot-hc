@@ -5,16 +5,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.tarosuke777.hc.entity.Channel;
 import com.tarosuke777.hc.entity.Message;
-
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
@@ -29,7 +25,8 @@ public class MessageController {
 
 	@CrossOrigin
 	@GetMapping("/messages")
-	public List<Message> index(@RequestParam(name = "channelId", defaultValue = "1") String channelId,
+	public List<Message> index(
+			@RequestParam(name = "channelId", defaultValue = "1") String channelId,
 			@RequestParam(name = "toDateStr", required = false) String toDateStr) {
 
 		LocalDate toDate = LocalDate.now();
@@ -42,7 +39,8 @@ public class MessageController {
 
 		QueryConditional keyEqual = QueryConditional
 				.sortGreaterThan(b -> b.partitionValue(channelId).sortValue(fromDate));
-		QueryEnhancedRequest tableQuery = QueryEnhancedRequest.builder().queryConditional(keyEqual).build();
+		QueryEnhancedRequest tableQuery =
+				QueryEnhancedRequest.builder().queryConditional(keyEqual).build();
 		PageIterable<Message> pages = dynamoDbTemplate.query(tableQuery, Message.class);
 		// PageIterableが空の場合の対応を追加
 		Optional<Page<Message>> firstPage = pages.stream().findFirst();
