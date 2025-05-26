@@ -1,0 +1,6 @@
+spring:
+  cloud:
+    aws:
+      dynamodb:
+        endpoint: ${SPRING_DATASOURCE_URL:http://localhost:8000}
+
