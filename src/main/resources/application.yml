@@ -1,6 +1,8 @@
 spring:
   application:
     name: hc
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
   cloud:
     aws:
       dynamodb:

@@ -1,10 +1,31 @@
 services:
- dynamodb-local:
-   command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
-   image: "amazon/dynamodb-local:latest"
-   container_name: dynamodb-local
-   ports:
-     - "8000:8000"
-   volumes:
-     - "./docker/dynamodb:/home/dynamodblocal/data"
-   working_dir: /home/dynamodblocal
+  db:
+    container_name: hc-dynamodb-db
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    image: "amazon/dynamodb-local:latest"
+    ports:
+      - "18000:8000"
+    volumes:
+      - "./docker/dynamodb:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+    networks:
+      - home_network
+  web-ap:
+    container_name: hc-web-ap
+    image: hc:1.0
+    build:
+      context: .
+      dockerfile: ./docker/web-ap/Dockerfile
+    ports:
+      - "18080:8080"
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: http://db:8000
+    networks:
+      - home_network
+networks:
+  home_network:
+    driver: bridge
+    ipam:
+      driver: default
