@@ -8,10 +8,10 @@ spring:
       dynamodb:
         enabled: true
         region: eu-west-1
-        endpoint: http://localhost:8000
+        endpoint: http://localhost:18000
       credentials:
         secret-key: DUMMYEXAMPLEKEY
         access-key: DUMMYIDEXAMPLE
 springdoc:
   swagger-ui:
-    path: /swagger-ui.html 
+    path: /swagger-ui.html
