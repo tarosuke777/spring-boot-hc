@@ -2,7 +2,7 @@ package com.tarosuke777.hc.handler;
 
 import java.io.IOException;
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -45,10 +45,12 @@ public class Handler extends TextWebSocketHandler {
 			@NonNull TextMessage textMessage) {
 
 		ObjectMapper mapper = new ObjectMapper();
+		Instant nowUtc = Instant.now();
+
 		try {
 			Message message = mapper.readValue(textMessage.getPayload(), Message.class);
 			message.setChannelId(message.getChannelId());
-			message.setCreatedAt(LocalDateTime.now().toString());
+			message.setCreatedAt(nowUtc.toString());
 			message.setUserId("1");
 
 			dynamoDbTemplate.save(message);

@@ -23,7 +23,6 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: http://db:8000
-      TZ: Asia/Tokyo
     networks:
       - home_network
 networks:
