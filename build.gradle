@@ -23,7 +23,8 @@ dependencies {
 	implementation "io.awspring.cloud:spring-cloud-aws-starter:${springCloudAwsVersion}"
 	implementation "io.awspring.cloud:spring-cloud-aws-starter-dynamodb:${springCloudAwsVersion}"
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
- 
+    implementation 'software.amazon.awssdk:sso:2.31.63'
+    implementation 'software.amazon.awssdk:ssooidc:2.31.63'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
