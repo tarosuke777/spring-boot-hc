@@ -6,8 +6,9 @@ services:
     ports:
       - "18000:8000"
     restart: always
+    user: root
     volumes:
-      - "./docker/dynamodb:/home/dynamodblocal/data"
+      - dynamodb_data:/home/dynamodblocal/data
     working_dir: /home/dynamodblocal
     networks:
       - home_network
@@ -30,3 +31,5 @@ networks:
     driver: bridge
     ipam:
       driver: default
+volumes: 
+  dynamodb_data:

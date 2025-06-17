@@ -1,0 +1,6 @@
+spring:
+  cloud:
+    aws:
+      dynamodb:
+        enabled: true
+        region: ap-northeast-1

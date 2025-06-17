@@ -2,4 +2,9 @@ spring:
   cloud:
     aws:
       dynamodb:
-        endpoint: ${SPRING_DATASOURCE_URL:http://localhost:18000}
+        enabled: true
+        region: eu-west-1
+        endpoint: http://localhost:18000
+      credentials:
+        secret-key: DUMMYEXAMPLEKEY
+        access-key: DUMMYIDEXAMPLE
