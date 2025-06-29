@@ -1,0 +1,20 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      java: corretto21
+  pre_build:
+    commands:
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+  build:
+    commands:
+      - chmod +x ./gradlew
+      - ./gradlew build -x test
+      - docker build -t spring-boot-hc . -f ./docker/web-ap/Dockerfile
+      - docker tag spring-boot-hc public.ecr.aws/f9s4g9c5/tarosuke777/spring-boot-hc
+  post_build:
+    commands:
+      - docker push public.ecr.aws/f9s4g9c5/tarosuke777/spring-boot-hc
+      - echo "[{\"name\":\"HcWebApTask\",\"imageUri\":\"public.ecr.aws/f9s4g9c5/tarosuke777/spring-boot-hc:latest\"}]" > imagedefinitions.json
+artifacts:
+  files: imagedefinitions.json
