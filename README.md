@@ -2,8 +2,8 @@
 
 ## local
 
-http://localhost:8080/swagger-ui/index.html
+http://localhost:8080/hc/ap/swagger-ui/index.html
 
 ## dev
 
-http://localhost:18080/swagger-ui/index.html
+http://localhost/hc/ap/swagger-ui/index.html
