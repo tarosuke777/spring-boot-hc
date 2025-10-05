@@ -1,17 +1,7 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Build with Gradle') {
-            steps {
-                echo 'Granting execute permission to gradlew...'
-                sh 'chmod +x gradlew'
-
-                echo 'Building application with Gradle...'
-                sh './gradlew clean build'
-            }
-        }
-        
+    stages {       
         stage('Docker Compose') {
             steps {
                 echo 'Building Docker Compose services...'
