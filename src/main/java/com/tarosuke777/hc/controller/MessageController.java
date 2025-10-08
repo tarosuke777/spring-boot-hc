@@ -29,18 +29,16 @@ public class MessageController {
 			@RequestParam(name = "channelId", defaultValue = "1") String channelId,
 			@RequestParam(name = "toDateStr", required = false) String toDateStr) {
 
-		LocalDate toDate = LocalDate.now();
-		if (toDateStr != null) {
-			DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-			toDate = LocalDate.parse(toDateStr, inputFormatter);
-		}
+		// channelIdでパーティションを特定します。
+		QueryConditional keyEqual = QueryConditional.keyEqualTo(b -> b.partitionValue(channelId));
 
-		String fromDate = toDate.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+		// QueryEnhancedRequestで、ソート順序を逆にして、取得する最大件数を20に設定します。
+		QueryEnhancedRequest tableQuery = QueryEnhancedRequest.builder().queryConditional(keyEqual)
+				// ソートキーの降順（新しい順）で取得します。
+				.scanIndexForward(false)
+				// 取得する最大件数を20に設定します。
+				.limit(20).build();
 
-		QueryConditional keyEqual = QueryConditional
-				.sortGreaterThan(b -> b.partitionValue(channelId).sortValue(fromDate));
-		QueryEnhancedRequest tableQuery =
-				QueryEnhancedRequest.builder().queryConditional(keyEqual).build();
 		PageIterable<Message> pages = dynamoDbTemplate.query(tableQuery, Message.class);
 		// PageIterableが空の場合の対応を追加
 		Optional<Page<Message>> firstPage = pages.stream().findFirst();
