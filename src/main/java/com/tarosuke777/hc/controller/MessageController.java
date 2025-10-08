@@ -40,15 +40,14 @@ public class MessageController {
 				.limit(20).build();
 
 		PageIterable<Message> pages = dynamoDbTemplate.query(tableQuery, Message.class);
-		// PageIterableが空の場合の対応を追加
 		Optional<Page<Message>> firstPage = pages.stream().findFirst();
 		if (firstPage.isPresent()) {
-			return firstPage.get().items();
+
+			List<Message> messages = firstPage.get().items();
+			Collections.reverse(messages);
+			return messages;
 		} else {
-			// 空の場合の処理 (例: 空のリストを返す、例外を投げる)
-			return Collections.emptyList(); // 空のリストを返す例
-			// throw new RuntimeException("No messages found for channelId: " + channelId);
-			// // 例外を投げる例
+			return Collections.emptyList();
 		}
 
 	}
