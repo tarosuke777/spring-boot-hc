@@ -12,7 +12,8 @@ public class Message {
 	private String createdAt;
 	private String content;
 	private String userId;
-	
+	private String to;
+
 	@DynamoDbPartitionKey
 	public String getChannelId() {
 		return channelId;
