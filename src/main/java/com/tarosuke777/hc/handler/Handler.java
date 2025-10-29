@@ -10,6 +10,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
+import org.springframework.util.StringUtils;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -73,7 +74,7 @@ public class Handler extends TextWebSocketHandler {
 			Message message = mapper.readValue(textMessage.getPayload(), Message.class);
 			message.setChannelId(message.getChannelId());
 			message.setCreatedAt(nowUtc.toString());
-			message.setUserId("1");
+			message.setUserId("tarosuke777");
 
 			dynamoDbTemplate.save(message);
 
@@ -84,9 +85,9 @@ public class Handler extends TextWebSocketHandler {
 				webSocketSession.sendMessage(sendTextMessage);
 			}
 
-			if ("AI".equals(message.getTo())) {
+			if (StringUtils.hasText(message.getTo())) {
 				try {
-					handleAiMessage(message.getContent(), message.getChannelId());
+					handleAiMessage(message.getContent(), message.getChannelId(), message.getTo());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -98,7 +99,7 @@ public class Handler extends TextWebSocketHandler {
 
 	}
 
-	private void handleAiMessage(String content, String channelId) throws Exception {
+	private void handleAiMessage(String content, String channelId, String to) throws Exception {
 
 		String sseUrl = sseHost + "/hms/sse";
 
@@ -106,7 +107,7 @@ public class Handler extends TextWebSocketHandler {
 		McpClient client = new DefaultMcpClient.Builder().transport(transport).build();
 		ToolProvider provider = McpToolProvider.builder().mcpClients(client).build();
 
-		String modelName = "ai/qwen3:0.6B-F16";
+		String modelName = to;
 		String modelUrl = modelHost + "/engines/llama.cpp/v1";
 
 		ChatModel model =
@@ -129,7 +130,7 @@ public class Handler extends TextWebSocketHandler {
 		message.setContent(res);
 		message.setChannelId(channelId);
 		message.setCreatedAt(nowUtc.toString());
-		message.setUserId("2");
+		message.setUserId(modelName);
 		dynamoDbTemplate.save(message);
 
 		ObjectMapper mapper = new ObjectMapper();
