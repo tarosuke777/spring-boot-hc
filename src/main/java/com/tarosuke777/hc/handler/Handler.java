@@ -23,6 +23,8 @@ import dev.langchain4j.mcp.client.DefaultMcpClient;
 import dev.langchain4j.mcp.client.McpClient;
 import dev.langchain4j.mcp.client.transport.McpTransport;
 import dev.langchain4j.mcp.client.transport.http.HttpMcpTransport;
+import dev.langchain4j.memory.ChatMemory;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
@@ -116,8 +118,10 @@ public class Handler extends TextWebSocketHandler {
 								HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1)))
 						.build();
 
-		Assistant assistant =
-				AiServices.builder(Assistant.class).chatModel(model).toolProvider(provider).build();
+		ChatMemory chatMemory = MessageWindowChatMemory.builder().maxMessages(10).build();
+
+		Assistant assistant = AiServices.builder(Assistant.class).chatModel(model)
+				.toolProvider(provider).chatMemory(chatMemory).build();
 
 		String res = assistant.chat("""
 				/no_think
