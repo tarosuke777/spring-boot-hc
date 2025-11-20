@@ -14,7 +14,8 @@ RUN ./gradlew clean build
 # ========================
 # ステージ 2: 実行ステージ (JARの実行のみ)
 # ========================
-FROM openjdk:21-jdk
+# FROM openjdk:21-jdk
+FROM eclipse-temurin:21-jre-ubi10-minimal
 # タイムゾーンを日本時間に変更（コンテナ内の実行環境をJSTに）
 ENV TZ Asia/Tokyo 
 
