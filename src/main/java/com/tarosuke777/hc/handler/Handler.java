@@ -15,6 +15,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tarosuke777.hc.entity.Message;
 import dev.langchain4j.http.client.jdk.JdkHttpClient;
@@ -80,12 +81,7 @@ public class Handler extends TextWebSocketHandler {
 
 			dynamoDbTemplate.save(message);
 
-			TextMessage sendTextMessage = new TextMessage(mapper.writeValueAsString(message));
-
-			for (WebSocketSession webSocketSession : channelSessionPool
-					.get(message.getChannelId())) {
-				webSocketSession.sendMessage(sendTextMessage);
-			}
+			sendMessage(mapper, message);
 
 			if (StringUtils.hasText(message.getTo())) {
 				try {
@@ -99,6 +95,15 @@ public class Handler extends TextWebSocketHandler {
 			e.printStackTrace();
 		}
 
+	}
+
+	private void sendMessage(ObjectMapper mapper, Message message)
+			throws JsonProcessingException, IOException {
+		TextMessage sendTextMessage = new TextMessage(mapper.writeValueAsString(message));
+
+		for (WebSocketSession webSocketSession : channelSessionPool.get(message.getChannelId())) {
+			webSocketSession.sendMessage(sendTextMessage);
+		}
 	}
 
 	private void handleAiMessage(String content, String channelId, String to) throws Exception {
@@ -138,11 +143,7 @@ public class Handler extends TextWebSocketHandler {
 		dynamoDbTemplate.save(message);
 
 		ObjectMapper mapper = new ObjectMapper();
-		TextMessage sendTextMessage = new TextMessage(mapper.writeValueAsString(message));
-
-		for (WebSocketSession webSocketSession : channelSessionPool.get(message.getChannelId())) {
-			webSocketSession.sendMessage(sendTextMessage);
-		}
+		sendMessage(mapper, message);
 
 		client.close();
 
