@@ -3,14 +3,11 @@ package com.tarosuke777.hc.controller;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.tarosuke777.hc.entity.Channel;
-
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
@@ -21,7 +18,6 @@ public class ChannelController {
 	@Autowired
 	DynamoDbTemplate dynamoDbTemplate;
 
-		
 	@CrossOrigin
 	@GetMapping("/channels")
 	public List<Channel> index() {
@@ -37,6 +33,5 @@ public class ChannelController {
 			// // 例外を投げる例
 		}
 	}
-
 
 }
