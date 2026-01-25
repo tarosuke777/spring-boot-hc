@@ -10,6 +10,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -32,7 +33,8 @@ import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.tool.ToolProvider;
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 
-public class Handler extends TextWebSocketHandler {
+@Component
+public class MessageHandler extends TextWebSocketHandler {
 
 	@Value("${ai.model.host}")
 	private String modelHost;

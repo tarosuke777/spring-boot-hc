@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tarosuke777.hc.entity.Message;
-import com.tarosuke777.hc.handler.Handler;
+import com.tarosuke777.hc.handler.MessageHandler;
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
@@ -25,7 +25,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 public class MessageController {
 
 	@Autowired
-	Handler webSocketHandler; // WebSocket配信のために追加
+	MessageHandler messageHandler; // WebSocket配信のために追加
 
 	private final ObjectMapper mapper = new ObjectMapper();
 
@@ -77,7 +77,7 @@ public class MessageController {
 
 		// 2. WebSocketで接続中の全クライアントにリアルタイム配信
 		try {
-			webSocketHandler.sendMessage(mapper, message);
+			messageHandler.sendMessage(mapper, message);
 		} catch (Exception e) {
 			// ログ出力など（接続中ユーザーがいない場合などのエラーハンドリング）
 			e.printStackTrace();

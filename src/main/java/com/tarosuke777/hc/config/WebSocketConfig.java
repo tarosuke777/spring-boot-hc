@@ -8,8 +8,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistration;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
-
-import com.tarosuke777.hc.handler.Handler;
+import com.tarosuke777.hc.handler.MessageHandler;
 
 @Configuration
 @EnableWebSocket
@@ -24,7 +23,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
 	@Bean
 	public WebSocketHandler handler() {
-		return new Handler();
+		return new MessageHandler();
 	}
 
 }
