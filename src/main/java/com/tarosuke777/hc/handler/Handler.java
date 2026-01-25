@@ -97,7 +97,7 @@ public class Handler extends TextWebSocketHandler {
 
 	}
 
-	private void sendMessage(ObjectMapper mapper, Message message)
+	public void sendMessage(ObjectMapper mapper, Message message)
 			throws JsonProcessingException, IOException {
 		TextMessage sendTextMessage = new TextMessage(mapper.writeValueAsString(message));
 
