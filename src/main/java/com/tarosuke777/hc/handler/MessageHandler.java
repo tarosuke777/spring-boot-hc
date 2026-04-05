@@ -19,10 +19,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tarosuke777.hc.entity.Message;
-import dev.langchain4j.mcp.client.DefaultMcpClient;
-import dev.langchain4j.mcp.client.McpClient;
-import dev.langchain4j.mcp.client.transport.McpTransport;
-import dev.langchain4j.mcp.client.transport.http.HttpMcpTransport;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ResponseFormat;
 import dev.langchain4j.model.ollama.OllamaChatModel;
@@ -107,11 +103,6 @@ public class MessageHandler extends TextWebSocketHandler {
 
 	private void handleAiMessage(String content, String channelId, String to) throws Exception {
 
-		String sseUrl = sseHost + "/hms/sse";
-
-		McpTransport transport = new HttpMcpTransport.Builder().sseUrl(sseUrl).build();
-		McpClient client = new DefaultMcpClient.Builder().transport(transport).build();
-
 		String modelName = "qwen3:4b";
 
 		ChatModel model = OllamaChatModel.builder().baseUrl(modelHost).modelName(modelName)
@@ -130,8 +121,6 @@ public class MessageHandler extends TextWebSocketHandler {
 
 		ObjectMapper mapper = new ObjectMapper();
 		sendMessage(mapper, message);
-
-		client.close();
 
 	}
 
