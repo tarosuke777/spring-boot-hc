@@ -108,10 +108,8 @@ public class MessageHandler extends TextWebSocketHandler {
 		ChatModel model = OllamaChatModel.builder().baseUrl(modelHost).modelName(modelName)
 				.timeout(Duration.ofSeconds(360)).responseFormat(ResponseFormat.TEXT).build();
 		String res = model.chat(content);
-		System.out.println(res);
 
 		Instant nowUtc = Instant.now();
-
 		Message message = new Message();
 		message.setContent(res);
 		message.setChannelId(channelId);
