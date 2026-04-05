@@ -58,39 +58,38 @@ public class MessageController {
 	}
 
 	@PostMapping("/messages/webhook")
-	public MessageResponse createFromWebhook(@RequestBody MessageRequest request) {
-		Message message = buildMessageFromRequest(request, WEBHOOK_USER_ID);
-		MessageResponse response = MessageMapper.toMessageResponse(message);
-		saveAndBroadcastMessage(response);
-		return response;
-	}
-
-	private Message buildMessageFromRequest(MessageRequest request, String userId) {
-		Message message = new Message();
-		message.setContent(StringUtils.hasText(request.getContent()) ? request.getContent() : "");
-		message.setChannelId(StringUtils.hasText(request.getChannelId()) ? request.getChannelId()
-				: DEFAULT_CHANNEL_ID);
-		message.setCreatedAt(Instant.now().toString());
-		message.setUserId(userId);
-		return message;
-	}
-
-	private void saveAndBroadcastMessage(MessageResponse response) {
-		Message entity = buildMessageFromResponse(response);
-		dynamoDbTemplate.save(entity);
+	public void createFromWebhook(@RequestBody MessageRequest request) {
 		try {
-			messageHandler.sendMessage(response);
+			handleFromMessage(request.getContent(), request.getChannelId());
 		} catch (Exception e) {
-			logger.warn("Failed to broadcast message to WebSocket clients", e);
+			logger.error("Failed to handle message from webhook", e);
 		}
 	}
 
-	private Message buildMessageFromResponse(MessageResponse response) {
+	/**
+	 * 送信元クライアントのメッセージを処理して、保存およびブロードキャストを行う。
+	 *
+	 * @param content メッセージ本文
+	 * @param channelId チャネル ID
+	 * @throws Exception 保存・送信処理に失敗した場合
+	 */
+	private void handleFromMessage(String content, String channelId) throws Exception {
 		Message message = new Message();
-		message.setChannelId(response.getChannelId());
-		message.setContent(response.getContent());
-		message.setCreatedAt(response.getCreatedAt());
-		message.setUserId(response.getUserId());
-		return message;
+		message.setContent(content);
+		message.setChannelId(channelId);
+		message.setCreatedAt(Instant.now().toString());
+		message.setUserId(WEBHOOK_USER_ID);
+
+		saveMessage(message);
+		messageHandler.sendMessage(MessageMapper.toMessageResponse(message));
+	}
+
+	/**
+	 * メッセージを DynamoDB に保存する。
+	 *
+	 * @param message 保存対象のメッセージ
+	 */
+	private void saveMessage(Message message) {
+		dynamoDbTemplate.save(message);
 	}
 }
