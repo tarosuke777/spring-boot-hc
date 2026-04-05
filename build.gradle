@@ -21,7 +21,9 @@ repositories {
 
 def versions = [
     springAi: "1.1.4",
-	springCloudAws: "3.2.1"
+	springCloudAws: "3.2.1",
+	mapstruct: "1.6.3",
+    lombokMapstructBinding: "0.2.0"
 ]
 
 dependencyManagement {
@@ -43,9 +45,23 @@ dependencies {
 	implementation "io.awspring.cloud:spring-cloud-aws-starter"
 	implementation "io.awspring.cloud:spring-cloud-aws-starter-dynamodb"
 
+	// --- Utilities ---
+	implementation "org.mapstruct:mapstruct:${versions.mapstruct}"
+
 	// --- Lombok & Annotation Processors ---
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	
+	annotationProcessor "org.mapstruct:mapstruct-processor:${versions.mapstruct}"
+	annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${versions.lombokMapstructBinding}"
+	annotationProcessor 'org.hibernate.orm:hibernate-jpamodelgen'
+
+	testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+	testAnnotationProcessor "org.mapstruct:mapstruct-processor:${versions.mapstruct}"
+	testAnnotationProcessor "org.projectlombok:lombok-mapstruct-binding:${versions.lombokMapstructBinding}"
+
 	
 	// --- Testing ---
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
