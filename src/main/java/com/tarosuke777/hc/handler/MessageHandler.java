@@ -43,7 +43,8 @@ public class MessageHandler extends TextWebSocketHandler {
 			return;
 		}
 
-		channelSessionPool.computeIfAbsent(channelId, key -> new CopyOnWriteArraySet<>()).add(session);
+		channelSessionPool.computeIfAbsent(channelId, key -> new CopyOnWriteArraySet<>())
+				.add(session);
 	}
 
 	@Override
@@ -57,7 +58,8 @@ public class MessageHandler extends TextWebSocketHandler {
 			saveMessage(message);
 			sendMessage(message);
 
-			if (StringUtils.hasText(message.getTo()) && StringUtils.hasText(message.getChannelId())) {
+			if (StringUtils.hasText(message.getTo())
+					&& StringUtils.hasText(message.getChannelId())) {
 				handleAiMessage(message.getContent(), message.getChannelId());
 			}
 		} catch (IOException e) {
@@ -67,13 +69,24 @@ public class MessageHandler extends TextWebSocketHandler {
 		}
 	}
 
-	private void saveMessage(Message message) {
-		dynamoDbTemplate.save(message);
+	@Override
+	public void afterConnectionClosed(@NonNull WebSocketSession session,
+			@NonNull CloseStatus status) throws Exception {
+		String channelId = getChannelId(session);
+		if (!StringUtils.hasText(channelId)) {
+			return;
+		}
+
+		channelSessionPool.computeIfPresent(channelId, (key, sessions) -> {
+			sessions.remove(session);
+			return sessions.isEmpty() ? null : sessions;
+		});
 	}
 
 	public void sendMessage(Message message) throws JsonProcessingException, IOException {
 		TextMessage sendTextMessage = new TextMessage(OBJECT_MAPPER.writeValueAsString(message));
-		for (WebSocketSession webSocketSession : channelSessionPool.getOrDefault(message.getChannelId(), Collections.emptySet())) {
+		for (WebSocketSession webSocketSession : channelSessionPool
+				.getOrDefault(message.getChannelId(), Collections.emptySet())) {
 			webSocketSession.sendMessage(sendTextMessage);
 		}
 	}
@@ -91,22 +104,13 @@ public class MessageHandler extends TextWebSocketHandler {
 		sendMessage(message);
 	}
 
-	@Override
-	public void afterConnectionClosed(@NonNull WebSocketSession session,
-			@NonNull CloseStatus status) throws Exception {
-		String channelId = getChannelId(session);
-		if (!StringUtils.hasText(channelId)) {
-			return;
-		}
-
-		channelSessionPool.computeIfPresent(channelId, (key, sessions) -> {
-			sessions.remove(session);
-			return sessions.isEmpty() ? null : sessions;
-		});
-	}
-
 	private String getChannelId(@NonNull WebSocketSession session) {
 		URI uri = session.getUri();
 		return (uri == null) ? null : uri.getQuery();
 	}
+
+	private void saveMessage(Message message) {
+		dynamoDbTemplate.save(message);
+	}
+
 }
