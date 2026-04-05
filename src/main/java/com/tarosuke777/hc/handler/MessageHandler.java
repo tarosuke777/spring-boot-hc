@@ -25,6 +25,11 @@ import com.tarosuke777.hc.dto.MessageResponse;
 import com.tarosuke777.hc.entity.Message;
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 
+/**
+ * WebSocket メッセージを受信して DynamoDB に保存し、接続中のクライアントにブロードキャストするハンドラー。
+ * <p>
+ * 受信したメッセージを内部エンティティに変換し、必要に応じて AI レスポンスを生成して 同じチャネルに送信します。
+ */
 @Component
 public class MessageHandler extends TextWebSocketHandler {
 
@@ -43,6 +48,12 @@ public class MessageHandler extends TextWebSocketHandler {
 		this.dynamoDbTemplate = dynamoDbTemplate;
 	}
 
+	/**
+	 * WebSocket 接続が確立されたときに呼び出される。 チャネル ID ごとにセッションをプールに追加する。
+	 *
+	 * @param session 新しい WebSocket セッション
+	 * @throws Exception セッションハンドリングに失敗した場合
+	 */
 	@Override
 	public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
 		String channelId = getChannelId(session);
@@ -54,6 +65,12 @@ public class MessageHandler extends TextWebSocketHandler {
 				.add(session);
 	}
 
+	/**
+	 * WebSocket から受信したテキストメッセージを処理する。 クライアントから送信されたメッセージを解析し、保存とブロードキャストを行う。
+	 *
+	 * @param session WebSocket セッション
+	 * @param textMessage 受信したテキストメッセージ
+	 */
 	@Override
 	protected void handleTextMessage(@NonNull WebSocketSession session,
 			@NonNull TextMessage textMessage) {
@@ -71,6 +88,13 @@ public class MessageHandler extends TextWebSocketHandler {
 		}
 	}
 
+	/**
+	 * WebSocket 接続が閉じられたときの処理。 該当チャネルのセッションプールからセッションを削除する。
+	 *
+	 * @param session 閉じられた WebSocket セッション
+	 * @param status 閉鎖ステータス
+	 * @throws Exception セッションクリーンアップに失敗した場合
+	 */
 	@Override
 	public void afterConnectionClosed(@NonNull WebSocketSession session,
 			@NonNull CloseStatus status) throws Exception {
@@ -85,6 +109,13 @@ public class MessageHandler extends TextWebSocketHandler {
 		});
 	}
 
+	/**
+	 * 画面表示用 DTO を JSON に変換して、同じチャネルの全セッションに送信する。
+	 *
+	 * @param messageResponse 送信対象のレスポンス DTO
+	 * @throws JsonProcessingException JSON 変換に失敗した場合
+	 * @throws IOException WebSocket 送信に失敗した場合
+	 */
 	public void sendMessage(MessageResponse messageResponse)
 			throws JsonProcessingException, IOException {
 		TextMessage sendTextMessage =
@@ -95,6 +126,13 @@ public class MessageHandler extends TextWebSocketHandler {
 		}
 	}
 
+	/**
+	 * 送信元クライアントのメッセージを処理して、保存およびブロードキャストを行う。
+	 *
+	 * @param content メッセージ本文
+	 * @param channelId チャネル ID
+	 * @throws Exception 保存・送信処理に失敗した場合
+	 */
 	private void handleFromMessage(String content, String channelId) throws Exception {
 		Message message = new Message();
 		message.setContent(content);
@@ -106,6 +144,14 @@ public class MessageHandler extends TextWebSocketHandler {
 		sendMessage(toMessageResponse(message));
 	}
 
+	/**
+	 * 送信先フィールドが存在する場合に AI 応答を生成してブロードキャストする。
+	 *
+	 * @param to 宛先フィールド
+	 * @param content 元メッセージ本文
+	 * @param channelId チャネル ID
+	 * @throws Exception AI 応答生成または送信処理に失敗した場合
+	 */
 	private void handleToMessage(String to, String content, String channelId) throws Exception {
 
 		if (!StringUtils.hasText(to)) {
@@ -124,6 +170,12 @@ public class MessageHandler extends TextWebSocketHandler {
 		sendMessage(toMessageResponse(message));
 	}
 
+	/**
+	 * 内部エンティティを画面表示用のレスポンス DTO に変換する。
+	 *
+	 * @param message DynamoDB 保存用のメッセージエンティティ
+	 * @return 画面表示用のメッセージレスポンス
+	 */
 	private MessageResponse toMessageResponse(Message message) {
 		MessageResponse response = new MessageResponse();
 		response.setChannelId(message.getChannelId());
@@ -133,11 +185,22 @@ public class MessageHandler extends TextWebSocketHandler {
 		return response;
 	}
 
+	/**
+	 * WebSocket セッションからチャネル ID を抽出する。
+	 *
+	 * @param session WebSocket セッション
+	 * @return クエリ文字列として指定されたチャネル ID、もしくは null
+	 */
 	private String getChannelId(@NonNull WebSocketSession session) {
 		URI uri = session.getUri();
 		return (uri == null) ? null : uri.getQuery();
 	}
 
+	/**
+	 * メッセージを DynamoDB に保存する。
+	 *
+	 * @param message 保存対象のメッセージ
+	 */
 	private void saveMessage(Message message) {
 		dynamoDbTemplate.save(message);
 	}
