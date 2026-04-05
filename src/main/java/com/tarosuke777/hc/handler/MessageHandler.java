@@ -3,11 +3,12 @@ package com.tarosuke777.hc.handler;
 import java.io.IOException;
 import java.net.URI;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -23,111 +24,89 @@ import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 @Component
 public class MessageHandler extends TextWebSocketHandler {
 
-	@Autowired
-	private ChatClient chatClient;
+	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-	private ConcurrentHashMap<String, Set<WebSocketSession>> channelSessionPool =
+	private final ChatClient chatClient;
+	private final DynamoDbTemplate dynamoDbTemplate;
+	private final ConcurrentMap<String, Set<WebSocketSession>> channelSessionPool =
 			new ConcurrentHashMap<>();
 
-	@Autowired
-	DynamoDbTemplate dynamoDbTemplate;
+	public MessageHandler(ChatClient chatClient, DynamoDbTemplate dynamoDbTemplate) {
+		this.chatClient = chatClient;
+		this.dynamoDbTemplate = dynamoDbTemplate;
+	}
 
 	@Override
 	public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
-
 		String channelId = getChannelId(session);
+		if (!StringUtils.hasText(channelId)) {
+			return;
+		}
 
-		channelSessionPool.compute(channelId, (key, sessions) -> {
-
-			if (sessions == null) {
-				sessions = new CopyOnWriteArraySet<>();
-			}
-			sessions.add(session);
-
-			return sessions;
-		});
+		channelSessionPool.computeIfAbsent(channelId, key -> new CopyOnWriteArraySet<>()).add(session);
 	}
 
 	@Override
 	protected void handleTextMessage(@NonNull WebSocketSession session,
 			@NonNull TextMessage textMessage) {
-
-		ObjectMapper mapper = new ObjectMapper();
-		Instant nowUtc = Instant.now();
-
 		try {
-			Message message = mapper.readValue(textMessage.getPayload(), Message.class);
-			message.setChannelId(message.getChannelId());
-			message.setCreatedAt(nowUtc.toString());
+			Message message = OBJECT_MAPPER.readValue(textMessage.getPayload(), Message.class);
+			message.setCreatedAt(Instant.now().toString());
 			message.setUserId("tarosuke777");
 
-			dynamoDbTemplate.save(message);
+			saveMessage(message);
+			sendMessage(message);
 
-			sendMessage(mapper, message);
-
-			if (StringUtils.hasText(message.getTo())) {
-				try {
-					handleAiMessage(message.getContent(), message.getChannelId(), message.getTo());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+			if (StringUtils.hasText(message.getTo()) && StringUtils.hasText(message.getChannelId())) {
+				handleAiMessage(message.getContent(), message.getChannelId());
 			}
-
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
 	}
 
-	public void sendMessage(ObjectMapper mapper, Message message)
-			throws JsonProcessingException, IOException {
-		TextMessage sendTextMessage = new TextMessage(mapper.writeValueAsString(message));
+	private void saveMessage(Message message) {
+		dynamoDbTemplate.save(message);
+	}
 
-		for (WebSocketSession webSocketSession : channelSessionPool.get(message.getChannelId())) {
+	public void sendMessage(Message message) throws JsonProcessingException, IOException {
+		TextMessage sendTextMessage = new TextMessage(OBJECT_MAPPER.writeValueAsString(message));
+		for (WebSocketSession webSocketSession : channelSessionPool.getOrDefault(message.getChannelId(), Collections.emptySet())) {
 			webSocketSession.sendMessage(sendTextMessage);
 		}
 	}
 
-	private void handleAiMessage(String content, String channelId, String to) throws Exception {
+	private void handleAiMessage(String content, String channelId) throws Exception {
+		String response = chatClient.prompt().user(content).call().content();
 
-		String res = chatClient.prompt().user(content).call().content();
-
-		Instant nowUtc = Instant.now();
 		Message message = new Message();
-		message.setContent(res);
+		message.setContent(response);
 		message.setChannelId(channelId);
-		message.setCreatedAt(nowUtc.toString());
+		message.setCreatedAt(Instant.now().toString());
 		message.setUserId("ollama");
-		dynamoDbTemplate.save(message);
 
-		ObjectMapper mapper = new ObjectMapper();
-		sendMessage(mapper, message);
-
+		saveMessage(message);
+		sendMessage(message);
 	}
 
 	@Override
 	public void afterConnectionClosed(@NonNull WebSocketSession session,
 			@NonNull CloseStatus status) throws Exception {
-
 		String channelId = getChannelId(session);
+		if (!StringUtils.hasText(channelId)) {
+			return;
+		}
 
-		channelSessionPool.compute(channelId, (key, sessions) -> {
-
+		channelSessionPool.computeIfPresent(channelId, (key, sessions) -> {
 			sessions.remove(session);
-			if (sessions.isEmpty()) {
-				sessions = null;
-			}
-
-			return sessions;
+			return sessions.isEmpty() ? null : sessions;
 		});
 	}
 
 	private String getChannelId(@NonNull WebSocketSession session) {
 		URI uri = session.getUri();
-		if (uri == null || uri.getQuery() == null) {
-			return null;
-		}
-		return uri.getQuery();
+		return (uri == null) ? null : uri.getQuery();
 	}
-
 }
