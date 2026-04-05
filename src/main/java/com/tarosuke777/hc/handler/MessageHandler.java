@@ -100,6 +100,17 @@ public class MessageHandler extends TextWebSocketHandler {
 	}
 
 	/**
+	 * WebSocket セッションからチャネル ID を抽出する。
+	 *
+	 * @param session WebSocket セッション
+	 * @return クエリ文字列として指定されたチャネル ID、もしくは null
+	 */
+	private String getChannelId(@NonNull WebSocketSession session) {
+		URI uri = session.getUri();
+		return (uri == null) ? null : uri.getQuery();
+	}
+
+	/**
 	 * 画面表示用 DTO を JSON に変換して、同じチャネルの全セッションに送信する。
 	 *
 	 * @param messageResponse 送信対象のレスポンス DTO
@@ -149,16 +160,4 @@ public class MessageHandler extends TextWebSocketHandler {
 				messageService.createAndSaveMessage(response, channelId, AI_USER_ID);
 		sendMessage(responseDto);
 	}
-
-	/**
-	 * WebSocket セッションからチャネル ID を抽出する。
-	 *
-	 * @param session WebSocket セッション
-	 * @return クエリ文字列として指定されたチャネル ID、もしくは null
-	 */
-	private String getChannelId(@NonNull WebSocketSession session) {
-		URI uri = session.getUri();
-		return (uri == null) ? null : uri.getQuery();
-	}
-
 }
