@@ -2,7 +2,6 @@ package com.tarosuke777.hc.handler;
 
 import java.io.IOException;
 import java.net.URI;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,9 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tarosuke777.hc.dto.MessageRequest;
 import com.tarosuke777.hc.dto.MessageResponse;
-import com.tarosuke777.hc.entity.Message;
-import com.tarosuke777.hc.mapper.MessageMapper;
-import io.awspring.cloud.dynamodb.DynamoDbTemplate;
+import com.tarosuke777.hc.service.MessageService;
 
 /**
  * WebSocket メッセージを受信して DynamoDB に保存し、接続中のクライアントにブロードキャストするハンドラー。
@@ -40,13 +37,13 @@ public class MessageHandler extends TextWebSocketHandler {
 	private static final String AI_USER_ID = "ollama";
 
 	private final ChatClient chatClient;
-	private final DynamoDbTemplate dynamoDbTemplate;
+	private final MessageService messageService;
 	private final ConcurrentMap<String, Set<WebSocketSession>> channelSessionPool =
 			new ConcurrentHashMap<>();
 
-	public MessageHandler(ChatClient chatClient, DynamoDbTemplate dynamoDbTemplate) {
+	public MessageHandler(ChatClient chatClient, MessageService messageService) {
 		this.chatClient = chatClient;
-		this.dynamoDbTemplate = dynamoDbTemplate;
+		this.messageService = messageService;
 	}
 
 	/**
@@ -81,21 +78,13 @@ public class MessageHandler extends TextWebSocketHandler {
 
 			handleFromMessage(request.getContent(), request.getChannelId());
 			handleToMessage(request.getTo(), request.getContent(), request.getChannelId());
-
 		} catch (IOException e) {
-			logger.error("Failed to parse WebSocket message", e);
+			logger.error("Failed to process incoming WebSocket message", e);
 		} catch (Exception e) {
-			logger.error("Error handling WebSocket message", e);
+			logger.error("Failed to handle message content", e);
 		}
 	}
 
-	/**
-	 * WebSocket 接続が閉じられたときの処理。 該当チャネルのセッションプールからセッションを削除する。
-	 *
-	 * @param session 閉じられた WebSocket セッション
-	 * @param status 閉鎖ステータス
-	 * @throws Exception セッションクリーンアップに失敗した場合
-	 */
 	@Override
 	public void afterConnectionClosed(@NonNull WebSocketSession session,
 			@NonNull CloseStatus status) throws Exception {
@@ -135,14 +124,10 @@ public class MessageHandler extends TextWebSocketHandler {
 	 * @throws Exception 保存・送信処理に失敗した場合
 	 */
 	private void handleFromMessage(String content, String channelId) throws Exception {
-		Message message = new Message();
-		message.setContent(content);
-		message.setChannelId(channelId);
-		message.setCreatedAt(Instant.now().toString());
-		message.setUserId(WS_USER_ID);
 
-		saveMessage(message);
-		sendMessage(MessageMapper.toMessageResponse(message));
+		MessageResponse responseDto =
+				messageService.createAndSaveMessage(content, channelId, WS_USER_ID);
+		sendMessage(responseDto);
 	}
 
 	/**
@@ -160,15 +145,9 @@ public class MessageHandler extends TextWebSocketHandler {
 		}
 
 		String response = chatClient.prompt().user(content).call().content();
-
-		Message message = new Message();
-		message.setContent(response);
-		message.setChannelId(channelId);
-		message.setCreatedAt(Instant.now().toString());
-		message.setUserId(AI_USER_ID);
-
-		saveMessage(message);
-		sendMessage(MessageMapper.toMessageResponse(message));
+		MessageResponse responseDto =
+				messageService.createAndSaveMessage(response, channelId, AI_USER_ID);
+		sendMessage(responseDto);
 	}
 
 	/**
@@ -182,12 +161,4 @@ public class MessageHandler extends TextWebSocketHandler {
 		return (uri == null) ? null : uri.getQuery();
 	}
 
-	/**
-	 * メッセージを DynamoDB に保存する。
-	 *
-	 * @param message 保存対象のメッセージ
-	 */
-	private void saveMessage(Message message) {
-		dynamoDbTemplate.save(message);
-	}
 }
