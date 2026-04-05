@@ -7,8 +7,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -23,6 +21,7 @@ import com.tarosuke777.hc.dto.MessageRequest;
 import com.tarosuke777.hc.dto.MessageResponse;
 import com.tarosuke777.hc.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * WebSocket メッセージを受信して DynamoDB に保存し、接続中のクライアントにブロードキャストするハンドラー。
@@ -31,9 +30,9 @@ import lombok.RequiredArgsConstructor;
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class MessageHandler extends TextWebSocketHandler {
 
-	private static final Logger logger = LoggerFactory.getLogger(MessageHandler.class);
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 	private final ChatClient chatClient;
@@ -75,9 +74,9 @@ public class MessageHandler extends TextWebSocketHandler {
 			handleFromMessage(request.getContent(), request.getChannelId());
 			handleToMessage(request.getTo(), request.getContent(), request.getChannelId());
 		} catch (IOException e) {
-			logger.error("Failed to process incoming WebSocket message", e);
+			log.error("Failed to process incoming WebSocket message", e);
 		} catch (Exception e) {
-			logger.error("Failed to handle message content", e);
+			log.error("Failed to handle message content", e);
 		}
 	}
 

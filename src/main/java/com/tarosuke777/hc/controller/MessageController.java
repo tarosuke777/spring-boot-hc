@@ -15,13 +15,13 @@ import com.tarosuke777.hc.dto.MessageResponse;
 import com.tarosuke777.hc.handler.MessageHandler;
 import com.tarosuke777.hc.service.MessageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
+@Slf4j
 public class MessageController {
-
-	private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
 
 	private final MessageHandler messageHandler;
 	private final MessageService messageService;
@@ -53,7 +53,7 @@ public class MessageController {
 					request.getChannelId(), "Jenkins-Bot");
 			messageHandler.sendMessage(response);
 		} catch (Exception e) {
-			logger.error("Failed to handle message from webhook", e);
+			log.error("Failed to handle message from webhook", e);
 		}
 	}
 }
