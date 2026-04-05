@@ -33,10 +33,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MessageHandler extends TextWebSocketHandler {
 
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
+	private final ObjectMapper objectMapper;
 	private final ChatClient chatClient;
 	private final MessageService messageService;
+
+	/**
+	 * チャネル ID ごとに WebSocket セッションを管理するためのプール。 チャネル ID をキー、セッションのセットを値とするマップ。
+	 */
 	private final ConcurrentMap<String, Set<WebSocketSession>> channelSessionPool =
 			new ConcurrentHashMap<>();
 
@@ -69,7 +72,7 @@ public class MessageHandler extends TextWebSocketHandler {
 			@NonNull TextMessage textMessage) {
 		try {
 			MessageRequest request =
-					OBJECT_MAPPER.readValue(textMessage.getPayload(), MessageRequest.class);
+					objectMapper.readValue(textMessage.getPayload(), MessageRequest.class);
 
 			handleFromMessage(request.getContent(), request.getChannelId());
 			handleToMessage(request.getTo(), request.getContent(), request.getChannelId());
@@ -115,7 +118,7 @@ public class MessageHandler extends TextWebSocketHandler {
 	public void sendMessage(MessageResponse messageResponse)
 			throws JsonProcessingException, IOException {
 		TextMessage sendTextMessage =
-				new TextMessage(OBJECT_MAPPER.writeValueAsString(messageResponse));
+				new TextMessage(objectMapper.writeValueAsString(messageResponse));
 		for (WebSocketSession webSocketSession : channelSessionPool
 				.getOrDefault(messageResponse.getChannelId(), Collections.emptySet())) {
 			webSocketSession.sendMessage(sendTextMessage);

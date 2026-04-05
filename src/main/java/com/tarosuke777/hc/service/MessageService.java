@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import com.tarosuke777.hc.dto.MessageResponse;
 import com.tarosuke777.hc.entity.Message;
+import com.tarosuke777.hc.mapper.MessageMapper;
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
@@ -25,6 +26,7 @@ public class MessageService {
 
     private static final int MAX_MESSAGE_LIMIT = 20;
     private final DynamoDbTemplate dynamoDbTemplate;
+    private final MessageMapper messageMapper;
 
     /**
      * 指定したチャネルの最新メッセージを取得します。
@@ -71,11 +73,6 @@ public class MessageService {
      * @return API や WebSocket 送信で使用可能なメッセージレスポンス
      */
     public MessageResponse toMessageResponse(Message message) {
-        MessageResponse response = new MessageResponse();
-        response.setChannelId(message.getChannelId());
-        response.setCreatedAt(message.getCreatedAt());
-        response.setContent(message.getContent());
-        response.setUserId(message.getUserId());
-        return response;
+        return messageMapper.toMessageResponse(message);
     }
 }
