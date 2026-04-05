@@ -76,8 +76,6 @@ public class MessageHandler extends TextWebSocketHandler {
 
 			sendMessage(mapper, message);
 
-			System.out.println(message);
-
 			if (StringUtils.hasText(message.getTo())) {
 				try {
 					handleAiMessage(message.getContent(), message.getChannelId(), message.getTo());
