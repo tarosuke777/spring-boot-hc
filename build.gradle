@@ -38,7 +38,6 @@ dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 	// --- AI & Cloud ---
-	// implementation platform("org.springframework.ai:spring-ai-bom:1.1.4")
 	implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
 	implementation 'org.springframework.ai:spring-ai-autoconfigure-model-ollama'
 	implementation "io.awspring.cloud:spring-cloud-aws-starter"
