@@ -2,11 +2,14 @@ package com.tarosuke777.hc.handler;
 
 import java.io.IOException;
 import java.net.URI;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.ollama.OllamaChatModel;
+import org.springframework.ai.ollama.api.OllamaChatOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
@@ -19,13 +22,13 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tarosuke777.hc.entity.Message;
-import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.chat.request.ResponseFormat;
-import dev.langchain4j.model.ollama.OllamaChatModel;
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 
 @Component
 public class MessageHandler extends TextWebSocketHandler {
+
+	@Autowired
+	private OllamaChatModel chatModel;
 
 	@Value("${ai.model.host}")
 	private String modelHost;
@@ -102,10 +105,9 @@ public class MessageHandler extends TextWebSocketHandler {
 	private void handleAiMessage(String content, String channelId, String to) throws Exception {
 
 		String modelName = "qwen3:4b";
-
-		ChatModel model = OllamaChatModel.builder().baseUrl(modelHost).modelName(modelName)
-				.timeout(Duration.ofSeconds(360)).responseFormat(ResponseFormat.TEXT).build();
-		String res = model.chat(content);
+		ChatResponse response = chatModel.call(new Prompt(content,
+				OllamaChatOptions.builder().model(modelName).temperature(0.4).build()));
+		String res = response.getResult().getOutput().getText();
 
 		Instant nowUtc = Instant.now();
 		Message message = new Message();

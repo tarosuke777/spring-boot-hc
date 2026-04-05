@@ -19,6 +19,10 @@ repositories {
 }
 
 dependencies {
+	implementation platform("org.springframework.ai:spring-ai-bom:1.1.4")
+	implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
+	implementation 'org.springframework.ai:spring-ai-autoconfigure-model-ollama'
+	
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation "io.awspring.cloud:spring-cloud-aws-starter:3.2.1"
@@ -31,8 +35,6 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	implementation("dev.langchain4j:langchain4j-ollama:1.12.2")
 
 	implementation('org.apache.commons:commons-lang3') {
         version {

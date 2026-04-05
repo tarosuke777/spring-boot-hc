@@ -8,6 +8,9 @@ spring:
       credentials:
         secret-key: DUMMYEXAMPLEKEY
         access-key: DUMMYIDEXAMPLE
+  ai:
+    ollama:
+      base-url: ${SPRING_AI_MODEL_HOST:http://192.168.10.11:11434}
 
 ai:
   sse:
