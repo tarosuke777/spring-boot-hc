@@ -3,15 +3,18 @@ package com.tarosuke777.hc.controller;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.tarosuke777.hc.dto.MessageRequest;
+import com.tarosuke777.hc.dto.MessageResponse;
 import com.tarosuke777.hc.entity.Message;
 import com.tarosuke777.hc.handler.MessageHandler;
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
@@ -25,7 +28,6 @@ public class MessageController {
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
 	private static final String DEFAULT_CHANNEL_ID = "1";
-	private static final String DEFAULT_MESSAGE_CONTENT = "No message content";
 	private static final String WEBHOOK_USER_ID = "Jenkins-Bot";
 	private static final int MAX_MESSAGE_LIMIT = 20;
 
@@ -38,7 +40,7 @@ public class MessageController {
 	}
 
 	@GetMapping("/messages")
-	public List<Message> index(
+	public List<MessageResponse> index(
 			@RequestParam(name = "channelId", defaultValue = DEFAULT_CHANNEL_ID) String channelId,
 			@RequestParam(name = "toDateStr", required = false) String toDateStr) {
 
@@ -51,32 +53,52 @@ public class MessageController {
 				.findFirst().map(Page::items).orElse(Collections.emptyList());
 
 		Collections.reverse(messages);
-		return messages;
+		return messages.stream().map(this::toMessageResponse).collect(Collectors.toList());
 	}
 
 	@PostMapping("/messages/webhook")
-	public Message createFromWebhook(@RequestBody Map<String, String> payload) {
-
-		Message message = buildMessageFromWebhookPayload(payload);
-		saveAndBroadcastMessage(message);
-		return message;
+	public MessageResponse createFromWebhook(@RequestBody MessageRequest request) {
+		Message message = buildMessageFromRequest(request, WEBHOOK_USER_ID);
+		MessageResponse response = toMessageResponse(message);
+		saveAndBroadcastMessage(response);
+		return response;
 	}
 
-	private Message buildMessageFromWebhookPayload(Map<String, String> payload) {
+	private Message buildMessageFromRequest(MessageRequest request, String userId) {
 		Message message = new Message();
-		message.setContent(payload.getOrDefault("content", DEFAULT_MESSAGE_CONTENT));
-		message.setChannelId(payload.getOrDefault("channelId", DEFAULT_CHANNEL_ID));
+		message.setContent(StringUtils.hasText(request.getContent()) ? request.getContent() : "");
+		message.setChannelId(StringUtils.hasText(request.getChannelId()) ? request.getChannelId()
+				: DEFAULT_CHANNEL_ID);
 		message.setCreatedAt(Instant.now().toString());
-		message.setUserId(WEBHOOK_USER_ID);
+		message.setUserId(userId);
 		return message;
 	}
 
-	private void saveAndBroadcastMessage(Message message) {
-		dynamoDbTemplate.save(message);
+	private MessageResponse toMessageResponse(Message message) {
+		MessageResponse response = new MessageResponse();
+		response.setChannelId(message.getChannelId());
+		response.setCreatedAt(message.getCreatedAt());
+		response.setContent(message.getContent());
+		response.setUserId(message.getUserId());
+		return response;
+	}
+
+	private void saveAndBroadcastMessage(MessageResponse response) {
+		Message entity = buildMessageFromResponse(response);
+		dynamoDbTemplate.save(entity);
 		try {
-			messageHandler.sendMessage(message);
+			messageHandler.sendMessage(response);
 		} catch (Exception e) {
 			logger.warn("Failed to broadcast message to WebSocket clients", e);
 		}
+	}
+
+	private Message buildMessageFromResponse(MessageResponse response) {
+		Message message = new Message();
+		message.setChannelId(response.getChannelId());
+		message.setContent(response.getContent());
+		message.setCreatedAt(response.getCreatedAt());
+		message.setUserId(response.getUserId());
+		return message;
 	}
 }
