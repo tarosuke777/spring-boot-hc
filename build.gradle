@@ -25,24 +25,17 @@ dependencies {
 	
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
 	implementation "io.awspring.cloud:spring-cloud-aws-starter:3.2.1"
 	implementation "io.awspring.cloud:spring-cloud-aws-starter-dynamodb:3.2.1"
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'
-    implementation 'software.amazon.awssdk:sso:2.31.63'
-    implementation 'software.amazon.awssdk:ssooidc:2.31.63'
+
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	implementation('org.apache.commons:commons-lang3') {
-        version {
-            // 3.20.0を強制し、古いバージョンや厳密な固定を無効化する
-            strictly '3.18.0' 
-        }
-    }
-
 }
 
 tasks.named('test') {
