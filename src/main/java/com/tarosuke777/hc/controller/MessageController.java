@@ -20,8 +20,6 @@ import com.tarosuke777.hc.service.MessageService;
 public class MessageController {
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
-	private static final String DEFAULT_CHANNEL_ID = "1";
-	private static final String WEBHOOK_USER_ID = "Jenkins-Bot";
 
 	private final MessageHandler messageHandler;
 	private final MessageService messageService;
@@ -33,7 +31,7 @@ public class MessageController {
 
 	@GetMapping("/messages")
 	public List<MessageResponse> index(
-			@RequestParam(name = "channelId", defaultValue = DEFAULT_CHANNEL_ID) String channelId,
+			@RequestParam(name = "channelId", defaultValue = "1") String channelId,
 			@RequestParam(name = "toDateStr", required = false) String toDateStr) {
 
 		return messageService.getMessagesByChannelId(channelId).stream()
@@ -42,9 +40,10 @@ public class MessageController {
 
 	@PostMapping("/messages/webhook")
 	public void createFromWebhook(@RequestBody MessageRequest request) {
+
 		try {
 			MessageResponse response = messageService.createAndSaveMessage(request.getContent(),
-					request.getChannelId(), WEBHOOK_USER_ID);
+					request.getChannelId(), "Jenkins-Bot");
 			messageHandler.sendMessage(response);
 		} catch (Exception e) {
 			logger.error("Failed to handle message from webhook", e);

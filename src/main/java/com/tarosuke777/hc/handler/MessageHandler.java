@@ -33,8 +33,6 @@ public class MessageHandler extends TextWebSocketHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageHandler.class);
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-	private static final String WS_USER_ID = "tarosuke777";
-	private static final String AI_USER_ID = "ollama";
 
 	private final ChatClient chatClient;
 	private final MessageService messageService;
@@ -137,7 +135,7 @@ public class MessageHandler extends TextWebSocketHandler {
 	private void handleFromMessage(String content, String channelId) throws Exception {
 
 		MessageResponse responseDto =
-				messageService.createAndSaveMessage(content, channelId, WS_USER_ID);
+				messageService.createAndSaveMessage(content, channelId, "tarosuke777");
 		sendMessage(responseDto);
 	}
 
@@ -157,7 +155,7 @@ public class MessageHandler extends TextWebSocketHandler {
 
 		String response = chatClient.prompt().user(content).call().content();
 		MessageResponse responseDto =
-				messageService.createAndSaveMessage(response, channelId, AI_USER_ID);
+				messageService.createAndSaveMessage(response, channelId, "ollama");
 		sendMessage(responseDto);
 	}
 }
