@@ -112,10 +112,9 @@ public class MessageHandler extends TextWebSocketHandler {
 		McpTransport transport = new HttpMcpTransport.Builder().sseUrl(sseUrl).build();
 		McpClient client = new DefaultMcpClient.Builder().transport(transport).build();
 
-		String modelUrl = "http://192.168.10.11:11434";
 		String modelName = "qwen3:4b";
 
-		ChatModel model = OllamaChatModel.builder().baseUrl(modelUrl).modelName(modelName)
+		ChatModel model = OllamaChatModel.builder().baseUrl(modelHost).modelName(modelName)
 				.timeout(Duration.ofSeconds(360)).responseFormat(ResponseFormat.TEXT).build();
 		String res = model.chat(content);
 		System.out.println(res);
