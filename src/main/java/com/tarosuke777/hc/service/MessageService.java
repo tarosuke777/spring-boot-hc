@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.tarosuke777.hc.dto.MessageResponse;
 import com.tarosuke777.hc.entity.Message;
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
+import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
@@ -19,14 +20,11 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
  * </p>
  */
 @Service
+@RequiredArgsConstructor
 public class MessageService {
 
     private static final int MAX_MESSAGE_LIMIT = 20;
     private final DynamoDbTemplate dynamoDbTemplate;
-
-    public MessageService(DynamoDbTemplate dynamoDbTemplate) {
-        this.dynamoDbTemplate = dynamoDbTemplate;
-    }
 
     /**
      * 指定したチャネルの最新メッセージを取得します。

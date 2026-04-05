@@ -14,9 +14,11 @@ import com.tarosuke777.hc.dto.MessageRequest;
 import com.tarosuke777.hc.dto.MessageResponse;
 import com.tarosuke777.hc.handler.MessageHandler;
 import com.tarosuke777.hc.service.MessageService;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @CrossOrigin
+@RequiredArgsConstructor
 public class MessageController {
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
@@ -24,11 +26,12 @@ public class MessageController {
 	private final MessageHandler messageHandler;
 	private final MessageService messageService;
 
-	public MessageController(MessageHandler messageHandler, MessageService messageService) {
-		this.messageHandler = messageHandler;
-		this.messageService = messageService;
-	}
-
+	/**
+	 * 指定されたチャネル ID に関連するメッセージのリストを取得します。
+	 *
+	 * @param channelId メッセージを取得するチャネルの ID
+	 * @return 指定されたチャネルに関連するメッセージのリスト
+	 */
 	@GetMapping("/messages")
 	public List<MessageResponse> index(
 			@RequestParam(name = "channelId", defaultValue = "1") String channelId) {
@@ -37,6 +40,11 @@ public class MessageController {
 				.map(messageService::toMessageResponse).collect(Collectors.toList());
 	}
 
+	/**
+	 * Webhook からのメッセージを処理し、保存してブロードキャストします。
+	 *
+	 * @param request Webhook から送信されたメッセージリクエスト
+	 */
 	@PostMapping("/messages/webhook")
 	public void createFromWebhook(@RequestBody MessageRequest request) {
 

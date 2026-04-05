@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tarosuke777.hc.dto.MessageRequest;
 import com.tarosuke777.hc.dto.MessageResponse;
 import com.tarosuke777.hc.service.MessageService;
+import lombok.RequiredArgsConstructor;
 
 /**
  * WebSocket メッセージを受信して DynamoDB に保存し、接続中のクライアントにブロードキャストするハンドラー。
@@ -29,6 +30,7 @@ import com.tarosuke777.hc.service.MessageService;
  * 受信したメッセージを内部エンティティに変換し、必要に応じて AI レスポンスを生成して 同じチャネルに送信します。
  */
 @Component
+@RequiredArgsConstructor
 public class MessageHandler extends TextWebSocketHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageHandler.class);
@@ -39,10 +41,6 @@ public class MessageHandler extends TextWebSocketHandler {
 	private final ConcurrentMap<String, Set<WebSocketSession>> channelSessionPool =
 			new ConcurrentHashMap<>();
 
-	public MessageHandler(ChatClient chatClient, MessageService messageService) {
-		this.chatClient = chatClient;
-		this.messageService = messageService;
-	}
 
 	/**
 	 * WebSocket 接続が確立されたときに呼び出される。 チャネル ID ごとにセッションをプールに追加する。
