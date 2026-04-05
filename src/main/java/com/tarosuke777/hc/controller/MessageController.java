@@ -31,8 +31,7 @@ public class MessageController {
 
 	@GetMapping("/messages")
 	public List<MessageResponse> index(
-			@RequestParam(name = "channelId", defaultValue = "1") String channelId,
-			@RequestParam(name = "toDateStr", required = false) String toDateStr) {
+			@RequestParam(name = "channelId", defaultValue = "1") String channelId) {
 
 		return messageService.getMessagesByChannelId(channelId).stream()
 				.map(messageService::toMessageResponse).collect(Collectors.toList());
