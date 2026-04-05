@@ -60,16 +60,10 @@ public class MessageHandler extends TextWebSocketHandler {
 		try {
 			MessageRequest request =
 					OBJECT_MAPPER.readValue(textMessage.getPayload(), MessageRequest.class);
-			Message message = buildMessageFromRequest(request, WS_USER_ID);
-			MessageResponse response = toMessageResponse(message);
 
-			saveMessage(message);
-			sendMessage(response);
+			handleFromMessage(request.getContent(), request.getChannelId());
+			handleToMessage(request.getTo(), request.getContent(), request.getChannelId());
 
-			if (StringUtils.hasText(request.getTo())
-					&& StringUtils.hasText(request.getChannelId())) {
-				handleAiMessage(response.getContent(), response.getChannelId());
-			}
 		} catch (IOException e) {
 			logger.error("Failed to parse WebSocket message", e);
 		} catch (Exception e) {
@@ -101,7 +95,23 @@ public class MessageHandler extends TextWebSocketHandler {
 		}
 	}
 
-	private void handleAiMessage(String content, String channelId) throws Exception {
+	private void handleFromMessage(String content, String channelId) throws Exception {
+		Message message = new Message();
+		message.setContent(content);
+		message.setChannelId(channelId);
+		message.setCreatedAt(Instant.now().toString());
+		message.setUserId(WS_USER_ID);
+
+		saveMessage(message);
+		sendMessage(toMessageResponse(message));
+	}
+
+	private void handleToMessage(String to, String content, String channelId) throws Exception {
+
+		if (!StringUtils.hasText(to)) {
+			return;
+		}
+
 		String response = chatClient.prompt().user(content).call().content();
 
 		Message message = new Message();
@@ -112,16 +122,6 @@ public class MessageHandler extends TextWebSocketHandler {
 
 		saveMessage(message);
 		sendMessage(toMessageResponse(message));
-	}
-
-	private Message buildMessageFromRequest(MessageRequest request, String userId) {
-		Message message = new Message();
-		message.setChannelId(
-				StringUtils.hasText(request.getChannelId()) ? request.getChannelId() : "1");
-		message.setContent(StringUtils.hasText(request.getContent()) ? request.getContent() : "");
-		message.setCreatedAt(Instant.now().toString());
-		message.setUserId(userId);
-		return message;
 	}
 
 	private MessageResponse toMessageResponse(Message message) {
