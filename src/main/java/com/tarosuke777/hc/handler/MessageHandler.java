@@ -6,6 +6,8 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.ollama.OllamaChatModel;
@@ -28,10 +30,7 @@ import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 public class MessageHandler extends TextWebSocketHandler {
 
 	@Autowired
-	private OllamaChatModel chatModel;
-
-	@Value("${ai.model.host}")
-	private String modelHost;
+	private ChatClient chatClient;
 
 	@Value("${ai.sse.host}")
 	private String sseHost;
@@ -104,17 +103,14 @@ public class MessageHandler extends TextWebSocketHandler {
 
 	private void handleAiMessage(String content, String channelId, String to) throws Exception {
 
-		String modelName = "qwen3:1.7b";
-		ChatResponse response = chatModel.call(new Prompt(content,
-				OllamaChatOptions.builder().model(modelName).temperature(0.4).build()));
-		String res = response.getResult().getOutput().getText();
+		String res = chatClient.prompt().user(content).call().content();
 
 		Instant nowUtc = Instant.now();
 		Message message = new Message();
 		message.setContent(res);
 		message.setChannelId(channelId);
 		message.setCreatedAt(nowUtc.toString());
-		message.setUserId(modelName);
+		message.setUserId("ollama");
 		dynamoDbTemplate.save(message);
 
 		ObjectMapper mapper = new ObjectMapper();
