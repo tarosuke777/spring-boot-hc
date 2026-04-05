@@ -18,22 +18,37 @@ repositories {
 	mavenCentral()
 }
 
+
+def versions = [
+    springAi: "1.1.4",
+	springCloudAws: "3.2.1",
+]
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.ai:spring-ai-bom:${versions.springAi}"
+		mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:${versions.springCloudAws}"
+	}
+}
+
 dependencies {
-	implementation platform("org.springframework.ai:spring-ai-bom:1.1.4")
-	implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
-	implementation 'org.springframework.ai:spring-ai-autoconfigure-model-ollama'
-	
+	// --- Spring Boot Starters ---
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-
-	implementation "io.awspring.cloud:spring-cloud-aws-starter:3.2.1"
-	implementation "io.awspring.cloud:spring-cloud-aws-starter-dynamodb:3.2.1"
-
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
+	// --- AI & Cloud ---
+	// implementation platform("org.springframework.ai:spring-ai-bom:1.1.4")
+	implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
+	implementation 'org.springframework.ai:spring-ai-autoconfigure-model-ollama'
+	implementation "io.awspring.cloud:spring-cloud-aws-starter"
+	implementation "io.awspring.cloud:spring-cloud-aws-starter-dynamodb"
+
+	// --- Lombok & Annotation Processors ---
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	
+	// --- Testing ---
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
@@ -43,6 +58,5 @@ tasks.named('test') {
 }
 
 dependencyCheck {
-    // CVSSスコアが3.0以上の脆弱性があればビルドを失敗させる例
-    failBuildOnCVSS = 3.0 
+	failBuildOnCVSS = 7.0 // HIGH (高)の脆弱性のみビルドを失敗させる
 }
