@@ -13,4 +13,4 @@ ai:
   sse:
     host: ${SPRING_AI_SSE_HOST:http://localhost} 
   model:
-    host: ${SPRING_AI_MODEL_HOST:http://localhost:12434}
+    host: ${SPRING_AI_MODEL_HOST:http://192.168.10.11:11434}

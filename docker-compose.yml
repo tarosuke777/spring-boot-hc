@@ -21,7 +21,7 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: http://hc-db-dynamodb:8000
       SPRING_AI_SSE_HOST: http://hms-ap:8080
-      SPRING_AI_MODEL_HOST: http://model-runner.docker.internal
+      SPRING_AI_MODEL_HOST: http://192.168.10.11:11434
     networks:
       - home_network
 networks:

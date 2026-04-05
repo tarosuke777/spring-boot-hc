@@ -32,9 +32,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	implementation("dev.langchain4j:langchain4j-mcp:1.2.0-beta8")
-	implementation("dev.langchain4j:langchain4j-open-ai:1.2.0")
-	implementation("dev.langchain4j:langchain4j-http-client-jdk:1.2.0")
+	implementation("dev.langchain4j:langchain4j-ollama:1.12.2")
 
 	implementation('org.apache.commons:commons-lang3') {
         version {

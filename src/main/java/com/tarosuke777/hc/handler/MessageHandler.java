@@ -2,7 +2,7 @@ package com.tarosuke777.hc.handler;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,18 +19,13 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tarosuke777.hc.entity.Message;
-import dev.langchain4j.http.client.jdk.JdkHttpClient;
-import dev.langchain4j.mcp.McpToolProvider;
 import dev.langchain4j.mcp.client.DefaultMcpClient;
 import dev.langchain4j.mcp.client.McpClient;
 import dev.langchain4j.mcp.client.transport.McpTransport;
 import dev.langchain4j.mcp.client.transport.http.HttpMcpTransport;
-import dev.langchain4j.memory.ChatMemory;
-import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.openai.OpenAiChatModel;
-import dev.langchain4j.service.AiServices;
-import dev.langchain4j.service.tool.ToolProvider;
+import dev.langchain4j.model.chat.request.ResponseFormat;
+import dev.langchain4j.model.ollama.OllamaChatModel;
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 
 @Component
@@ -85,6 +80,8 @@ public class MessageHandler extends TextWebSocketHandler {
 
 			sendMessage(mapper, message);
 
+			System.out.println(message);
+
 			if (StringUtils.hasText(message.getTo())) {
 				try {
 					handleAiMessage(message.getContent(), message.getChannelId(), message.getTo());
@@ -114,29 +111,17 @@ public class MessageHandler extends TextWebSocketHandler {
 
 		McpTransport transport = new HttpMcpTransport.Builder().sseUrl(sseUrl).build();
 		McpClient client = new DefaultMcpClient.Builder().transport(transport).build();
-		ToolProvider provider = McpToolProvider.builder().mcpClients(client).build();
 
-		String modelName = to;
-		String modelUrl = modelHost + "/engines/llama.cpp/v1";
+		String modelUrl = "http://192.168.10.11:11434";
+		String modelName = "qwen3:4b";
 
-		ChatModel model =
-				OpenAiChatModel.builder().baseUrl(modelUrl).modelName(modelName)
-						.httpClientBuilder(JdkHttpClient.builder().httpClientBuilder(
-								HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1)))
-						.build();
-
-		ChatMemory chatMemory = MessageWindowChatMemory.builder().maxMessages(10).build();
-
-		Assistant assistant = AiServices.builder(Assistant.class).chatModel(model)
-				.toolProvider(provider).chatMemory(chatMemory).build();
-
-		String res = assistant.chat("""
-				/no_think
-				""" + content);
+		ChatModel model = OllamaChatModel.builder().baseUrl(modelUrl).modelName(modelName)
+				.timeout(Duration.ofSeconds(360)).responseFormat(ResponseFormat.TEXT).build();
+		String res = model.chat(content);
+		System.out.println(res);
 
 		Instant nowUtc = Instant.now();
 
-		// System.out.println(res);
 		Message message = new Message();
 		message.setContent(res);
 		message.setChannelId(channelId);
