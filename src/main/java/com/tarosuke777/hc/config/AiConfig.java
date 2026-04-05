@@ -16,7 +16,7 @@ public class AiConfig {
 
     @Bean
     public ChatClient chatClient(ChatClient.Builder builder) {
-        return builder.defaultOptions(OllamaChatOptions.builder().temperature(0.4).build())
-                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build()).build();
+        return builder.defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+                .build();
     }
 }

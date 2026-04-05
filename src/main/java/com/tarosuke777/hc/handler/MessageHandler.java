@@ -27,13 +27,6 @@ public class MessageHandler extends TextWebSocketHandler {
 	@Autowired
 	private ChatClient chatClient;
 
-	@Value("${ai.sse.host}")
-	private String sseHost;
-
-	interface Assistant {
-		String chat(String userMessage);
-	}
-
 	private ConcurrentHashMap<String, Set<WebSocketSession>> channelSessionPool =
 			new ConcurrentHashMap<>();
 

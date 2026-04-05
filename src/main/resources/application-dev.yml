@@ -14,9 +14,4 @@ spring:
       chat:
         options:
           model: qwen3:1.7b
-
-ai:
-  sse:
-    host: ${SPRING_AI_SSE_HOST:http://localhost} 
-  model:
-    host: ${SPRING_AI_MODEL_HOST:http://192.168.10.11:11434}
+          temperature: 0.4
