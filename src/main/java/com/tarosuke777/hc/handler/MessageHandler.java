@@ -104,7 +104,7 @@ public class MessageHandler extends TextWebSocketHandler {
 
 	private void handleAiMessage(String content, String channelId, String to) throws Exception {
 
-		String modelName = "qwen3:4b";
+		String modelName = "qwen3:1.7b";
 		ChatResponse response = chatModel.call(new Prompt(content,
 				OllamaChatOptions.builder().model(modelName).temperature(0.4).build()));
 		String res = response.getResult().getOutput().getText();
