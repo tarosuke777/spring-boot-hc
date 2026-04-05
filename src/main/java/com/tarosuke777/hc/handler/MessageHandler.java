@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tarosuke777.hc.dto.MessageRequest;
 import com.tarosuke777.hc.dto.MessageResponse;
 import com.tarosuke777.hc.entity.Message;
+import com.tarosuke777.hc.mapper.MessageMapper;
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 
 /**
@@ -141,7 +142,7 @@ public class MessageHandler extends TextWebSocketHandler {
 		message.setUserId(WS_USER_ID);
 
 		saveMessage(message);
-		sendMessage(toMessageResponse(message));
+		sendMessage(MessageMapper.toMessageResponse(message));
 	}
 
 	/**
@@ -167,22 +168,7 @@ public class MessageHandler extends TextWebSocketHandler {
 		message.setUserId(AI_USER_ID);
 
 		saveMessage(message);
-		sendMessage(toMessageResponse(message));
-	}
-
-	/**
-	 * 内部エンティティを画面表示用のレスポンス DTO に変換する。
-	 *
-	 * @param message DynamoDB 保存用のメッセージエンティティ
-	 * @return 画面表示用のメッセージレスポンス
-	 */
-	private MessageResponse toMessageResponse(Message message) {
-		MessageResponse response = new MessageResponse();
-		response.setChannelId(message.getChannelId());
-		response.setCreatedAt(message.getCreatedAt());
-		response.setContent(message.getContent());
-		response.setUserId(message.getUserId());
-		return response;
+		sendMessage(MessageMapper.toMessageResponse(message));
 	}
 
 	/**

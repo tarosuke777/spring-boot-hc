@@ -17,6 +17,7 @@ import com.tarosuke777.hc.dto.MessageRequest;
 import com.tarosuke777.hc.dto.MessageResponse;
 import com.tarosuke777.hc.entity.Message;
 import com.tarosuke777.hc.handler.MessageHandler;
+import com.tarosuke777.hc.mapper.MessageMapper;
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
@@ -53,13 +54,13 @@ public class MessageController {
 				.findFirst().map(Page::items).orElse(Collections.emptyList());
 
 		Collections.reverse(messages);
-		return messages.stream().map(this::toMessageResponse).collect(Collectors.toList());
+		return messages.stream().map(MessageMapper::toMessageResponse).collect(Collectors.toList());
 	}
 
 	@PostMapping("/messages/webhook")
 	public MessageResponse createFromWebhook(@RequestBody MessageRequest request) {
 		Message message = buildMessageFromRequest(request, WEBHOOK_USER_ID);
-		MessageResponse response = toMessageResponse(message);
+		MessageResponse response = MessageMapper.toMessageResponse(message);
 		saveAndBroadcastMessage(response);
 		return response;
 	}
@@ -72,15 +73,6 @@ public class MessageController {
 		message.setCreatedAt(Instant.now().toString());
 		message.setUserId(userId);
 		return message;
-	}
-
-	private MessageResponse toMessageResponse(Message message) {
-		MessageResponse response = new MessageResponse();
-		response.setChannelId(message.getChannelId());
-		response.setCreatedAt(message.getCreatedAt());
-		response.setContent(message.getContent());
-		response.setUserId(message.getUserId());
-		return response;
 	}
 
 	private void saveAndBroadcastMessage(MessageResponse response) {
