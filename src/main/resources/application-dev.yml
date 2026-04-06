@@ -14,4 +14,4 @@ spring:
       chat:
         options:
           model: qwen3:1.7b
-          temperature: 0.4
+          temperature: 0.7
