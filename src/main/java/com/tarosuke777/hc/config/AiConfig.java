@@ -15,7 +15,8 @@ public class AiConfig {
 
     @Bean
     public ChatClient chatClient(ChatClient.Builder builder) {
-        return builder.defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
-                .build();
+        return builder
+                .defaultSystem("あなたは関西出身のフレンドリーなアシスタントです。回答はすべて、自然な関西弁で行ってください。挨拶は抜きで、簡潔に頼みます。")
+                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build()).build();
     }
 }
