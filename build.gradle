@@ -42,6 +42,7 @@ dependencies {
 	// --- AI & Cloud ---
 	implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
 	implementation 'org.springframework.ai:spring-ai-autoconfigure-model-ollama'
+	implementation 'org.springframework.ai:spring-ai-advisors-vector-store'
 	implementation "io.awspring.cloud:spring-cloud-aws-starter"
 	implementation "io.awspring.cloud:spring-cloud-aws-starter-dynamodb"
 
