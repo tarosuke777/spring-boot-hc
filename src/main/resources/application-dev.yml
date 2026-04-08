@@ -18,3 +18,8 @@ spring:
       embedding:
         options:
           model: nomic-embed-text
+api:
+  hms:
+    base-url: ${SPRING_AI_HMS_HOST:http://localhost:8080/hms}
+    username: ${hms_api_username:admin}
+    password: ${hms_api_password:password}

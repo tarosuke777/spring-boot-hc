@@ -20,8 +20,11 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: http://hc-db-dynamodb:8000
-      SPRING_AI_SSE_HOST: http://hms-ap:8080
+      SPRING_AI_HMS_HOST: http://hms-ap:8080/hms
       SPRING_AI_MODEL_HOST: http://192.168.10.11:11434
+    secrets:
+      - hms_api_username
+      - hms_api_password
     networks:
       - home_network
 networks:
@@ -30,3 +33,8 @@ networks:
 volumes:
   dynamodb_data:
     name: hc-dynamodb-data
+secrets:
+  hms_api_username:
+    file: C:\\dev\\secrets\\hms_api_username.txt  
+  hms_api_password:
+    file: C:\\dev\\secrets\\hms_api_password.txt
