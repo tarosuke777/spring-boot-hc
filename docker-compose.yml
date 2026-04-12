@@ -15,7 +15,7 @@ services:
     image: hc:1.0
     build:
       context: .
-      dockerfile: ./docker/web-ap/Dockerfile
+      dockerfile: Dockerfile
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: dev
