@@ -20,7 +20,7 @@ spring:
       base-url: ${SPRING_AI_MODEL_HOST:http://192.168.10.11:11434}
       chat:
         options:
-          model: qwen3:1.7b
+          model: qwen3:0.6b
           temperature: 0.7
       embedding:
         options:
