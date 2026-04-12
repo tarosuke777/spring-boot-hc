@@ -21,7 +21,7 @@ repositories {
 
 def versions = [
     springAi: "1.1.4",
-	springCloudAws: "3.2.1",
+	springCloudAws: "3.4.0",
 	mapstruct: "1.6.3",
     lombokMapstructBinding: "0.2.0"
 ]
