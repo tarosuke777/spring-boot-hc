@@ -1,7 +1,7 @@
 # ========================
 # ステージ 1: ビルドステージ (JARの作成のみ)
 # ========================
-FROM gradle:jdk21 AS builder 
+FROM gradle:jdk25 AS builder 
 
 # RUN apk update && apk add --no-cache bash build-base
 
@@ -16,7 +16,7 @@ RUN ./gradlew clean build
 # ========================
 # FROM openjdk:21-jdk
 # FROM eclipse-temurin:21-jre-ubi10-minimal
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 
 # タイムゾーンを日本時間に変更（コンテナ内の実行環境をJSTに）
 ENV TZ Asia/Tokyo 
