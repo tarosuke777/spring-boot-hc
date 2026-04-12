@@ -1,3 +1,5 @@
+name: hc
+
 services:
   hc-db-dynamodb:
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
