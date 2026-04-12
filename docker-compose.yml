@@ -19,7 +19,7 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: http://hc-db-dynamodb:8000
+      DYNAMODB_URL: http://hc-db-dynamodb:8000
       HMS_DATASOURCE_URL: jdbc:mariadb://home-db-mariadb:3306/hms
       SPRING_AI_HMS_HOST: http://hms-ap:8080/hms
       SPRING_AI_MODEL_HOST: http://192.168.10.11:11434
