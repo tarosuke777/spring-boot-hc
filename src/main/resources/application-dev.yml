@@ -11,7 +11,7 @@ spring:
         secret-key: DUMMYEXAMPLEKEY
         access-key: DUMMYIDEXAMPLE
   datasource:
-    url: ${SPRING_DATASOURCE_URL_HMS:jdbc:mariadb://localhost:13306/hms}
+    url: ${HMS_DATASOURCE_URL:jdbc:mariadb://localhost:13306/hms}
     driver-class-name: org.mariadb.jdbc.Driver
     username: hms
     password: ${mysql_user_password:hms-password2}
