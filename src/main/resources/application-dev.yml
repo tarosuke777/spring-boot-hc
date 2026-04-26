@@ -22,9 +22,6 @@ spring:
         options:
           model: qwen3:0.6b
           temperature: 0.7
-      embedding:
-        options:
-          model: nomic-embed-text
 api:
   hms:
     base-url: ${SPRING_AI_HMS_HOST:http://localhost:8080/hms}
