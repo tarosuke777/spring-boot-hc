@@ -14,7 +14,7 @@ spring:
     url: ${HMS_DATASOURCE_URL:jdbc:mariadb://localhost:13306/hms}
     driver-class-name: org.mariadb.jdbc.Driver
     username: hms
-    password: ${mysql_user_password:hms-password2}
+    password: ${mysql_user_password}
   ai:
     ollama:
       base-url: ${SPRING_AI_MODEL_HOST:http://192.168.10.11:11434}
