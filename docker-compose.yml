@@ -2,6 +2,7 @@ name: hc
 
 services:
   hc-db-dynamodb:
+    container_name: hc-db-dynamodb
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
     image: "amazon/dynamodb-local:latest"
     ports:
@@ -14,6 +15,7 @@ services:
     networks:
       - home_network
   hc-ap:
+    container_name: hc-ap
     image: hc:1.0
     build:
       context: .
