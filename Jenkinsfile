@@ -23,7 +23,7 @@ pipeline {
             sh """
                 curl -X POST -H "Content-Type: application/json" \
                 -d '{"content":"✅ ビルド成功: ${env.JOB_NAME} #${env.BUILD_NUMBER}", "channelId":"1"}' \
-                http://home-web-nginx/hc/ap/messages/webhook
+                http://hc-ap:8080/hc/ap/messages/webhook
             """
         }
         
@@ -33,7 +33,7 @@ pipeline {
             sh """
                 curl -X POST -H "Content-Type: application/json" \
                 -d '{"content":"❌ ビルド失敗: ${env.JOB_NAME} #${env.BUILD_NUMBER}", "channelId":"1"}' \
-                http://home-web-nginx/hc/ap/messages/webhook
+                http://hc-ap:8080/hc/ap/messages/webhook
             """
         }
     }
