@@ -25,7 +25,7 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       DYNAMODB_URL: http://hc-db-dynamodb:8000
       HMS_DATASOURCE_URL: jdbc:mariadb://home-db-mariadb:3306/hms
-      SPRING_AI_HMS_HOST: http://hms-ap:8080/hms
+      SPRING_AI_HMS_HOST: http://hms-ap:8080
       SPRING_AI_MODEL_HOST: http://192.168.10.11:11434
     secrets:
       - hms_api_username
