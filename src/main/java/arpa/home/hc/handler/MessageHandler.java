@@ -1,4 +1,4 @@
-package com.tarosuke777.hc.handler;
+package arpa.home.hc.handler;
 
 import java.io.IOException;
 import java.net.URI;
@@ -17,9 +17,9 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tarosuke777.hc.dto.MessageRequest;
-import com.tarosuke777.hc.dto.MessageResponse;
-import com.tarosuke777.hc.service.MessageService;
+import arpa.home.hc.dto.MessageRequest;
+import arpa.home.hc.dto.MessageResponse;
+import arpa.home.hc.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

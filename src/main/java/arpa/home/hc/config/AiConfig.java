@@ -1,4 +1,4 @@
-package com.tarosuke777.hc.config;
+package arpa.home.hc.config;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;

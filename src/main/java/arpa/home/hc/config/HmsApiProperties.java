@@ -1,4 +1,4 @@
-package com.tarosuke777.hc.config;
+package arpa.home.hc.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

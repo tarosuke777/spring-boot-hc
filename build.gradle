@@ -5,7 +5,7 @@ plugins {
 	id 'org.owasp.dependencycheck' version '12.1.9'
 }
 
-group = 'com.tarosuke777.hc'
+group = 'arpa.home.hc'
 version = '0.0.1-SNAPSHOT'
 
 java {

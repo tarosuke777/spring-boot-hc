@@ -1,8 +1,8 @@
-package com.tarosuke777.hc.mapper;
+package arpa.home.hc.mapper;
 
 import org.mapstruct.Mapper;
-import com.tarosuke777.hc.dto.MessageResponse;
-import com.tarosuke777.hc.entity.Message;
+import arpa.home.hc.dto.MessageResponse;
+import arpa.home.hc.entity.Message;
 
 @Mapper(componentModel = "spring")
 public interface MessageMapper {

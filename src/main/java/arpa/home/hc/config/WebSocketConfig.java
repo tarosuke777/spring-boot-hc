@@ -1,4 +1,4 @@
-package com.tarosuke777.hc.config;
+package arpa.home.hc.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -7,7 +7,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistration;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
-import com.tarosuke777.hc.handler.MessageHandler;
+import arpa.home.hc.handler.MessageHandler;
 
 @Configuration
 @EnableWebSocket

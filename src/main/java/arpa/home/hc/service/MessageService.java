@@ -1,12 +1,12 @@
-package com.tarosuke777.hc.service;
+package arpa.home.hc.service;
 
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import org.springframework.stereotype.Service;
-import com.tarosuke777.hc.dto.MessageResponse;
-import com.tarosuke777.hc.entity.Message;
-import com.tarosuke777.hc.mapper.MessageMapper;
+import arpa.home.hc.dto.MessageResponse;
+import arpa.home.hc.entity.Message;
+import arpa.home.hc.mapper.MessageMapper;
 import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
