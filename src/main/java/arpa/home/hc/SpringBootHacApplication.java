@@ -1,4 +1,4 @@
-package com.tarosuke777.hc;
+package arpa.home.hc;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

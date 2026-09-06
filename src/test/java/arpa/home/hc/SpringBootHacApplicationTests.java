@@ -1,4 +1,4 @@
-package com.tarosuke777.hc;
+package arpa.home.hc;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

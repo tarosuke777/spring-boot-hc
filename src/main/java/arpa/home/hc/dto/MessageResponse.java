@@ -1,4 +1,4 @@
-package com.tarosuke777.hc.dto;
+package arpa.home.hc.dto;
 
 import lombok.Data;
 
